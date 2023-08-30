@@ -1,0 +1,43 @@
+global class InvocavelClass {
+      
+    
+    public class  entradasFlow{
+      
+        @invocableVariable(label='Id da Despesa')
+        public Id recordId;
+        
+   }
+      
+    @invocableMethod(label='Verificar despesas com negligência')
+    
+    public static void atualizaDespesa(List<entradasFlow> inputs){
+    
+    	List<Despesa__c> despList = new List<Despesa__c>();
+   
+        for(entradasFlow edflow: inputs){
+                despList.add([SELECT id, LastModifiedDate, Negligencia__c FROM Despesa__c WHERE id=: edflow.recordId]);
+        }
+               
+        
+        for(Despesa__c Desp : despList){
+            integer diasEntre = Date.valueOf(Desp.LastModifiedDate).daysBetween(system.today());
+       		
+      
+            if( diasEntre > 3 && diasEntre <= 10 && (Desp.Negligencia__c =='' || Desp.Negligencia__c ==null )){
+                Desp.Negligencia__c = 'de 3 a 10 dias';
+      
+            }
+            if(diasEntre > 10 && diasEntre <= 15 && Desp.Negligencia__c != 'de 10 a 15 dias'){
+                Desp.Negligencia__c = 'de 10 a 15 dias';
+            }
+            if(diasEntre > 15 && Desp.Negligencia__c != ' mais de 15 dias'){
+                Desp.Negligencia__c = 'mais de 15 dias';
+            }
+            
+        }
+        
+        update despList;
+    	    
+    }
+
+}
